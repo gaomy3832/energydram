@@ -103,13 +103,20 @@ class IDDsDomain(unittest.TestCase):
 
 
 class TestVoltageDomain(unittest.TestCase):
-    ''' VoltageDomain class unit tests. '''
+    '''
+    VoltageDomain class unit tests.
 
-    tck = 1000./533
-    vdd = 1.5
-    idds = energydram.IDDs(idd0=140, idd2p=25, idd2n=65, idd3p=45,
-                           idd3n=80, idd4r=280, idd4w=350, idd5=255)
+    Compare with DDR3_Power_Calc.xlsm.
+
+    Based on DDR3, 2 Gb, x8, -125E, fast-exit.
+    '''
+
+    tck = 1000./800
+    vdd = 1.575
+    idds = energydram.IDDs(idd0=95, idd2p=35, idd2n=42, idd3p=40,
+                           idd3n=45, idd4r=180, idd4w=185, idd5=215)
     chipcnt = 1
+    timing = energydram.Timing(RAS=35, RP=47.5-35, RFC=160, REFI=7800)
 
     def test_init(self):
         ''' Initialization. '''
@@ -177,6 +184,54 @@ class TestVoltageDomain(unittest.TestCase):
                 return
             self.fail()
         self.fail()
+
+    def test_background_energy(self):
+        ''' Calculate background energy. '''
+        vdom = energydram.VoltageDomain(self.tck, self.vdd, self.idds,
+                                        self.chipcnt, ddr=3)
+
+        pds_pre_lo = vdom.background_energy(1, 0, 0, 0) / vdom.tck
+        self.assertAlmostEqual(pds_pre_lo, 55.1, delta=0.1)
+
+        pds_pre_hi = vdom.background_energy(0, 1, 0, 0) / vdom.tck
+        self.assertAlmostEqual(pds_pre_hi, 66.2, delta=0.1)
+
+        pds_act_lo = vdom.background_energy(0, 0, 1, 0) / vdom.tck
+        self.assertAlmostEqual(pds_act_lo, 63.0, delta=0.1)
+
+        pds_act_hi = vdom.background_energy(0, 0, 0, 1) / vdom.tck
+        self.assertAlmostEqual(pds_act_hi, 70.9, delta=0.1)
+
+    def test_activate_energy(self):
+        ''' Calculate activate energy. '''
+        vdom = energydram.VoltageDomain(self.tck, self.vdd, self.idds,
+                                        self.chipcnt, ddr=3)
+
+        eact = vdom.activate_energy(self.timing, 1)
+        pds_act = eact / (self.timing.RAS + self.timing.RP) / vdom.tck
+        self.assertAlmostEqual(pds_act, 80.0, delta=0.1)
+
+    def test_readwrite_energy(self):
+        ''' Calculate read/write energy. '''
+        vdom = energydram.VoltageDomain(self.tck, self.vdd, self.idds,
+                                        self.chipcnt, ddr=3)
+
+        erd = vdom.readwrite_energy(num_rd=1, num_wr=0)
+        pds_rd = erd / 4 / vdom.tck
+        self.assertAlmostEqual(pds_rd, 212.6, delta=0.1)
+
+        ewr = vdom.readwrite_energy(num_rd=0, num_wr=1)
+        pds_wr = ewr / 4 / vdom.tck
+        self.assertAlmostEqual(pds_wr, 220.5, delta=0.1)
+
+    def test_refresh_energy(self):
+        ''' Calculate activate energy. '''
+        vdom = energydram.VoltageDomain(self.tck, self.vdd, self.idds,
+                                        self.chipcnt, ddr=3)
+
+        eref = vdom.refresh_energy(self.timing, 1)
+        pds_ref = eref / self.timing.REFI / vdom.tck
+        self.assertAlmostEqual(pds_ref, 5.5, delta=0.1)
 
 
 if __name__ == '__main__':
