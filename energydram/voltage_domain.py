@@ -81,8 +81,8 @@ class VoltageDomain(object):
         self.chipcnt = chipcnt
         self.ddr = ddr
 
-    def background_energy(self, cycles_bankpre_ckelo, cycles_bankpre_ckehi,
-                          cycles_bankact_ckelo, cycles_bankact_ckehi):
+    def background_energy(self, cycles_bankpre_ckelo=0, cycles_bankpre_ckehi=0,
+                          cycles_bankact_ckelo=0, cycles_bankact_ckehi=0):
         ''' Background energy. '''
         chipicyc = (self.idds.idd2p * cycles_bankpre_ckelo
                     + self.idds.idd2n * cycles_bankpre_ckehi
@@ -98,7 +98,7 @@ class VoltageDomain(object):
                               - self.idds.idd2n * (cycles_rc - timing.RAS))
         return chipicyc * self.vdd * self.tck * self.chipcnt
 
-    def readwrite_energy(self, num_rd=1, num_wr=1):
+    def readwrite_energy(self, num_rd=1, num_wr=0):
         ''' Read write energy. '''
         cyc_burst = (1 << self.ddr) / 2 if self.ddr >= 1 else 1
         chipicyc = cyc_burst * ((self.idds.idd4r - self.idds.idd3n) * num_rd
