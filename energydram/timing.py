@@ -9,8 +9,9 @@ from collections import namedtuple
 # Alphabetical order.
 _TIMING_PARAM_LIST = [
     'RAS',
+    'REFI',
     'RFC',
-    'RP'
+    'RP',
     ]
 
 '''
