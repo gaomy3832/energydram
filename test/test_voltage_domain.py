@@ -116,7 +116,7 @@ class TestVoltageDomain(unittest.TestCase):
     idds = energydram.IDDs(idd0=95, idd2p=35, idd2n=42, idd3p=40,
                            idd3n=45, idd4r=180, idd4w=185, idd5=215)
     chipcnt = 1
-    timing = energydram.Timing(RAS=35, RP=47.5-35, RFC=160, REFI=7800)
+    timing = energydram.Timing(RRD=6, RAS=35, RP=47.5-35, RFC=160, REFI=7800)
 
     def test_init(self):
         ''' Initialization. '''
