@@ -6,15 +6,46 @@
 
 from collections import namedtuple
 
-IDDs = namedtuple('IDDs', ['idd0', 'idd2n', 'idd2p', 'idd3n', 'idd3p', 'idd4r',
-                           'idd4w', 'idd5'])
+_IDDsBase = namedtuple('_IDDsBase', ['idd0', 'idd2n', 'idd2p', 'idd3n',
+                                     'idd3p', 'idd4r', 'idd4w', 'idd5'])
 
-def _check_idds(idds):
-    ''' Check validation of IDD values. '''
-    return idds.idd2n >= idds.idd2p \
-            and idds.idd3n >= idds.idd3p \
-            and idds.idd3n >= idds.idd2n \
-            and idds.idd3p >= idds.idd2p
+class IDDs(_IDDsBase):
+    '''
+    Define the set of IDD values.
+    '''
+
+    def __new__(cls, **kwargs):
+        # http://stackoverflow.com/a/3624799
+        self = super(IDDs, cls).__new__(cls, **kwargs)
+        self.check()
+        return self
+
+    def check(self):
+        ''' Check validation of IDD values. '''
+        if self.idd2n < self.idd2p:
+            raise ValueError('{}: IDD2N < IDD2P!'
+                             .format(self.__class__.__name__))
+        if self.idd3n < self.idd3p:
+            raise ValueError('{}: IDD3N < IDD3P!'
+                             .format(self.__class__.__name__))
+        if self.idd3n < self.idd2n:
+            raise ValueError('{}: IDD3N < IDD2N!'
+                             .format(self.__class__.__name__))
+        if self.idd3p < self.idd2p:
+            raise ValueError('{}: IDD3P < IDD2P!'
+                             .format(self.__class__.__name__))
+        if self.idd0 < self.idd3n:
+            raise ValueError('{}: IDD0 < IDD3N!'
+                             .format(self.__class__.__name__))
+        if self.idd4r < self.idd3n:
+            raise ValueError('{}: IDD4R < IDD3N!'
+                             .format(self.__class__.__name__))
+        if self.idd4w < self.idd3n:
+            raise ValueError('{}: IDD4W < IDD3N!'
+                             .format(self.__class__.__name__))
+        if self.idd5 < self.idd3n:
+            raise ValueError('{}: IDD5 < IDD3N!'
+                             .format(self.__class__.__name__))
 
 
 class VoltageDomain(object):
@@ -29,9 +60,9 @@ class VoltageDomain(object):
         if vdd < 0:
             raise ValueError('{}: given vdd is invalid.'
                              .format(self.__class__.__name__))
-        if _check_idds(idds):
-            raise ValueError('{}: given idds is invalid.'
-                             .format(self.__class__.__name__))
+        if not isinstance(idds, IDDs):
+            raise TypeError('{}: given idds has invalid type.'
+                            .format(self.__class__.__name__))
         if not isinstance(chipcnt, int):
             raise TypeError('{}: given chipcnt has invalid type.'
                             .format(self.__class__.__name__))
