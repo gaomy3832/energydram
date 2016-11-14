@@ -66,9 +66,15 @@ class VoltageDomain(object):
         if not isinstance(chipcnt, int):
             raise TypeError('{}: given chipcnt has invalid type.'
                             .format(self.__class__.__name__))
+        if chipcnt <= 0:
+            raise ValueError('{}: given chipcnt is invalid.'
+                             .format(self.__class__.__name__))
         if not isinstance(ddr, int):
             raise TypeError('{}: given ddr has invalid type.'
                             .format(self.__class__.__name__))
+        if ddr < 0:
+            raise ValueError('{}: given ddr is invalid.'
+                             .format(self.__class__.__name__))
         self.tck = tck
         self.vdd = vdd
         self.idds = idds
