@@ -4,6 +4,7 @@
  *
 """
 
+from .energy_ddr import EnergyDDR
 from .timing import Timing
 from .voltage_domain import IDDs, VoltageDomain
 
