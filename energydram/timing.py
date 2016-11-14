@@ -12,6 +12,7 @@ _TIMING_PARAM_LIST = [
     'REFI',
     'RFC',
     'RP',
+    'RRD',
     ]
 
 '''
