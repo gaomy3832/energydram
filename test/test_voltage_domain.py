@@ -9,7 +9,7 @@ import unittest
 import energydram
 
 
-class IDDsDomain(unittest.TestCase):
+class TestIDDs(unittest.TestCase):
     ''' IDDs class unit tests. '''
     def test_init(self):
         ''' Initialization. '''
