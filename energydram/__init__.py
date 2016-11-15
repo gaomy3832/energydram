@@ -9,3 +9,5 @@ from .energy_lpddr import EnergyLPDDR
 from .timing import Timing
 from .voltage_domain import IDDs, VoltageDomain
 
+__version__ = '0.1.0'
+
