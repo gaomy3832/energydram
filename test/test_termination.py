@@ -158,10 +158,13 @@ class TestTermination(unittest.TestCase):
 
     def test_init(self):
         ''' Initialization. '''
-        term = energydram.Termination(self.vdd, self.rankcnt, self.resistance)
+        term = energydram.Termination(self.vdd, self.rankcnt, self.resistance,
+                                      rdpincnt=10, wrpincnt=11)
         self.assertEqual(term.vdd, self.vdd, 'vdd')
         self.assertEqual(term.rankcnt, self.rankcnt, 'rankcnt')
         self.assertEqual(term.resistance, self.resistance, 'resistance')
+        self.assertEqual(term.rdpincnt, 10, 'rdpincnt')
+        self.assertEqual(term.wrpincnt, 11, 'wrpincnt')
 
     def test_init_invalid_vdd(self):
         ''' Initialize with invalid vdd. '''
@@ -182,6 +185,38 @@ class TestTermination(unittest.TestCase):
                 energydram.Termination(self.vdd, 0, self.resistance)
             except ValueError as e:
                 self.assertIn('rankcnt', str(e))
+                return
+            self.fail()
+        self.fail()
+
+    def test_init_invalid_rdpincnt(self):
+        ''' Initialize with invalid rdpincnt. '''
+        try:
+            energydram.Termination(self.vdd, self.rankcnt, self.resistance,
+                                   rdpincnt=1.2)
+        except TypeError as e:
+            self.assertIn('rdpincnt', str(e))
+            try:
+                energydram.Termination(self.vdd, self.rankcnt, self.resistance,
+                                       rdpincnt=0)
+            except ValueError as e:
+                self.assertIn('rdpincnt', str(e))
+                return
+            self.fail()
+        self.fail()
+
+    def test_init_invalid_wrpincnt(self):
+        ''' Initialize with invalid wrpincnt. '''
+        try:
+            energydram.Termination(self.vdd, self.rankcnt, self.resistance,
+                                   wrpincnt=1.2)
+        except TypeError as e:
+            self.assertIn('wrpincnt', str(e))
+            try:
+                energydram.Termination(self.vdd, self.rankcnt, self.resistance,
+                                       wrpincnt=0)
+            except ValueError as e:
+                self.assertIn('wrpincnt', str(e))
                 return
             self.fail()
         self.fail()
