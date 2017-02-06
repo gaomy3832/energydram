@@ -56,10 +56,15 @@ class TermResistance(_TermResistanceBase):
 
 class Termination(object):
     '''
-    Termination scheme.
+    Termination scheme for an individual chip.
     '''
 
-    def __init__(self, vdd, rankcnt, resistance):
+    def __init__(self, vdd, rankcnt, resistance, rdpincnt=1, wrpincnt=1):
+        '''
+        As an example to specify pin count, for a x8 device, read pin count
+        includes 8 DQ and 2 DQS, a total of 10; write pin count also includes
+        a datamask, a total of 11. See TN-41-01.
+        '''
         if vdd < 0:
             raise ValueError('{}: given vdd is invalid.'
                              .format(self.__class__.__name__))
@@ -72,10 +77,24 @@ class Termination(object):
         if not isinstance(resistance, TermResistance):
             raise TypeError('{}: given resistance has invalid type.'
                             .format(self.__class__.__name__))
+        if not isinstance(rdpincnt, int):
+            raise TypeError('{}: given rdpincnt has invalid type.'
+                            .format(self.__class__.__name__))
+        if rdpincnt <= 0:
+            raise ValueError('{}: given rdpincnt is invalid.'
+                             .format(self.__class__.__name__))
+        if not isinstance(wrpincnt, int):
+            raise TypeError('{}: given wrpincnt has invalid type.'
+                            .format(self.__class__.__name__))
+        if wrpincnt <= 0:
+            raise ValueError('{}: given wrpincnt is invalid.'
+                             .format(self.__class__.__name__))
 
         self.vdd = vdd
         self.rankcnt = rankcnt
         self.resistance = resistance
+        self.rdpincnt = rdpincnt
+        self.wrpincnt = wrpincnt
 
         rz_dev = resistance.rz_dev
         rz_mc = resistance.rz_mc
@@ -160,6 +179,10 @@ class Termination(object):
                     + (wr_vnodes[idx] ** 2) / 2 / rtt_nom \
                     + ((wr_vnodes[idx] - wr_vnodes[-1]) ** 2) / rs
         self.wr_power[-1] = (wr_vnodes[-1] ** 2) / rz_mc
+
+        # Multiply pin count to be a whole chip.
+        self.rd_power *= self.rdpincnt
+        self.wr_power *= self.wrpincnt
 
     def read_power_total(self):
         ''' Get DRAM read termination power. '''
