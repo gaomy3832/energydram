@@ -59,11 +59,19 @@ class Termination(object):
     Termination scheme for an individual chip.
     '''
 
-    def __init__(self, vdd, rankcnt, resistance, rdpincnt=1, wrpincnt=1):
+    def __init__(self, vdd, rankcnt, resistance, width=0):
         '''
-        As an example to specify pin count, for a x8 device, read pin count
-        includes 8 DQ and 2 DQS, a total of 10; write pin count also includes
-        a datamask, a total of 11. See TN-41-01.
+        `width` specifies the chip width and determines the pin count
+        associated to termination. Currently support 0, 4, 8, 16. Valid for
+        DDR2, DDR3, and DDR4.
+
+        x4 device: for read, 4 DQ and 2 DQS; for write, 1 additional DM.
+
+        x8 device: for read, 8 DQ and 2 DQS; for write, 1 additional DM.
+
+        x16 device: for read, 16 DQ and 4 DQS; for write, 2 additional DM.
+
+        A special value 0 means to calculate for a single pin.
         '''
         if vdd < 0:
             raise ValueError('{}: given vdd is invalid.'
@@ -77,24 +85,26 @@ class Termination(object):
         if not isinstance(resistance, TermResistance):
             raise TypeError('{}: given resistance has invalid type.'
                             .format(self.__class__.__name__))
-        if not isinstance(rdpincnt, int):
-            raise TypeError('{}: given rdpincnt has invalid type.'
-                            .format(self.__class__.__name__))
-        if rdpincnt <= 0:
-            raise ValueError('{}: given rdpincnt is invalid.'
-                             .format(self.__class__.__name__))
-        if not isinstance(wrpincnt, int):
-            raise TypeError('{}: given wrpincnt has invalid type.'
-                            .format(self.__class__.__name__))
-        if wrpincnt <= 0:
-            raise ValueError('{}: given wrpincnt is invalid.'
-                             .format(self.__class__.__name__))
 
         self.vdd = vdd
         self.rankcnt = rankcnt
         self.resistance = resistance
-        self.rdpincnt = rdpincnt
-        self.wrpincnt = wrpincnt
+
+        if width == 4:
+            self.rdpincnt = 6
+            self.wrpincnt = 7
+        elif width == 8:
+            self.rdpincnt = 10
+            self.wrpincnt = 11
+        elif width == 16:
+            self.rdpincnt = 20
+            self.wrpincnt = 22
+        elif width == 0:
+            self.rdpincnt = 1
+            self.wrpincnt = 1
+        else:
+            raise ValueError('{}: given width is invalid.'
+                             .format(self.__class__.__name__))
 
         rz_dev = resistance.rz_dev
         rz_mc = resistance.rz_mc

@@ -158,13 +158,27 @@ class TestTermination(unittest.TestCase):
 
     def test_init(self):
         ''' Initialization. '''
-        term = energydram.Termination(self.vdd, self.rankcnt, self.resistance,
-                                      rdpincnt=10, wrpincnt=11)
+        term = energydram.Termination(self.vdd, self.rankcnt, self.resistance)
         self.assertEqual(term.vdd, self.vdd, 'vdd')
         self.assertEqual(term.rankcnt, self.rankcnt, 'rankcnt')
         self.assertEqual(term.resistance, self.resistance, 'resistance')
+        self.assertEqual(term.rdpincnt, 1, 'rdpincnt')
+        self.assertEqual(term.wrpincnt, 1, 'wrpincnt')
+
+    def test_init_width(self):
+        ''' Initialize with different width values. '''
+        term = energydram.Termination(self.vdd, self.rankcnt, self.resistance,
+                                      width=4)
+        self.assertEqual(term.rdpincnt, 6, 'rdpincnt')
+        self.assertEqual(term.wrpincnt, 7, 'wrpincnt')
+        term = energydram.Termination(self.vdd, self.rankcnt, self.resistance,
+                                      width=8)
         self.assertEqual(term.rdpincnt, 10, 'rdpincnt')
         self.assertEqual(term.wrpincnt, 11, 'wrpincnt')
+        term = energydram.Termination(self.vdd, self.rankcnt, self.resistance,
+                                      width=16)
+        self.assertEqual(term.rdpincnt, 20, 'rdpincnt')
+        self.assertEqual(term.wrpincnt, 22, 'wrpincnt')
 
     def test_init_invalid_vdd(self):
         ''' Initialize with invalid vdd. '''
@@ -189,36 +203,14 @@ class TestTermination(unittest.TestCase):
             self.fail()
         self.fail()
 
-    def test_init_invalid_rdpincnt(self):
-        ''' Initialize with invalid rdpincnt. '''
+    def test_init_invalid_width(self):
+        ''' Initialize with invalid width. '''
         try:
             energydram.Termination(self.vdd, self.rankcnt, self.resistance,
-                                   rdpincnt=1.2)
-        except TypeError as e:
-            self.assertIn('rdpincnt', str(e))
-            try:
-                energydram.Termination(self.vdd, self.rankcnt, self.resistance,
-                                       rdpincnt=0)
-            except ValueError as e:
-                self.assertIn('rdpincnt', str(e))
-                return
-            self.fail()
-        self.fail()
-
-    def test_init_invalid_wrpincnt(self):
-        ''' Initialize with invalid wrpincnt. '''
-        try:
-            energydram.Termination(self.vdd, self.rankcnt, self.resistance,
-                                   wrpincnt=1.2)
-        except TypeError as e:
-            self.assertIn('wrpincnt', str(e))
-            try:
-                energydram.Termination(self.vdd, self.rankcnt, self.resistance,
-                                       wrpincnt=0)
-            except ValueError as e:
-                self.assertIn('wrpincnt', str(e))
-                return
-            self.fail()
+                                   width=1)
+        except ValueError as e:
+            self.assertIn('width', str(e))
+            return
         self.fail()
 
     def test_init_invalid_resistance(self):
