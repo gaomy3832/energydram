@@ -59,7 +59,7 @@ class Termination(object):
     Termination scheme for an individual chip.
     '''
 
-    def __init__(self, vdd, rankcnt, resistance, width=0):
+    def __init__(self, vdd, rankcnt, resistance, width=0, level='mid'):
         '''
         `width` specifies the chip width and determines the pin count
         associated to termination. Currently support 0, 4, 8, 16. Valid for
@@ -72,7 +72,14 @@ class Termination(object):
         x16 device: for read, 16 DQ and 4 DQS; for write, 2 additional DM.
 
         A special value 0 means to calculate for a single pin.
+
+        `level` can be 'high' or 'mid'. DDR2 and DDR3 use mid; DDR4 uses high.
+
+        high: single R_TT connects to VDD.
+
+        mid: R_TTU connects to VDD and R_TTD connects to GND, both are 2 * R_TT.
         '''
+
         if vdd < 0:
             raise ValueError('{}: given vdd is invalid.'
                              .format(self.__class__.__name__))
@@ -106,6 +113,14 @@ class Termination(object):
             raise ValueError('{}: given width is invalid.'
                              .format(self.__class__.__name__))
 
+        if level == 'high':
+            vdd_eq = vdd / 1.
+        elif level == 'mid':
+            vdd_eq = vdd / 2.
+        else:
+            raise ValueError('{}: given level is invalid.'
+                             .format(self.__class__.__name__))
+
         rz_dev = resistance.rz_dev
         rz_mc = resistance.rz_mc
         rtt_nom = resistance.rtt_nom
@@ -131,13 +146,12 @@ class Termination(object):
         for idx in range(1, rankcnt):
             coef[idx, idx] = 1. / rtt_nom + 1. / rs
             coef[idx, rankcnt] = -1. / rs
-            rhs[idx] = vdd * 1. / 2 / rtt_nom
+            rhs[idx] = vdd_eq / rtt_nom
         # MC: rtt_mc, 2x up to VDD and down to GND.
         # (VMC - VDD)/2rtt_mc + VMC/2rtt_mc + sum (VMC - Vi)/rs = 0
-        for jdx in range(rankcnt):
-            coef[rankcnt, jdx] = -1. / rs
+        coef[rankcnt, 0:rankcnt] = -1. / rs
         coef[rankcnt, rankcnt] = 1. / rtt_mc + rankcnt * 1. / rs
-        rhs[rankcnt] = vdd * 1. / 2 / rtt_mc
+        rhs[rankcnt] = vdd_eq / rtt_mc
 
         rd_vnodes = np.linalg.solve(coef, rhs)
 
@@ -146,13 +160,21 @@ class Termination(object):
                 (rd_vnodes[0] ** 2) / rz_dev \
                 + ((rd_vnodes[0] - rd_vnodes[-1]) ** 2) / rs
         for idx in range(1, rankcnt):
-            self.rd_power[idx] = \
-                    ((rd_vnodes[idx] - vdd) ** 2) / 2 / rtt_nom \
-                    + (rd_vnodes[idx] ** 2) / 2 / rtt_nom \
-                    + ((rd_vnodes[idx] - rd_vnodes[-1]) ** 2) / rs
-        self.rd_power[-1] = \
-                ((rd_vnodes[-1] - vdd) ** 2) / 2 / rtt_mc \
-                + (rd_vnodes[-1] ** 2) / 2 / rtt_mc
+            if level == 'mid':
+                self.rd_power[idx] = \
+                        ((rd_vnodes[idx] - vdd) ** 2) / 2 / rtt_nom \
+                        + (rd_vnodes[idx] ** 2) / 2 / rtt_nom \
+                        + ((rd_vnodes[idx] - rd_vnodes[-1]) ** 2) / rs
+            elif level == 'high':
+                self.rd_power[idx] = \
+                        ((rd_vnodes[idx] - vdd) ** 2) / rtt_nom \
+                        + ((rd_vnodes[idx] - rd_vnodes[-1]) ** 2) / rs
+        if level == 'mid':
+            self.rd_power[-1] = \
+                    ((rd_vnodes[-1] - vdd) ** 2) / 2 / rtt_mc \
+                    + (rd_vnodes[-1] ** 2) / 2 / rtt_mc
+        elif level == 'high':
+            self.rd_power[-1] = ((rd_vnodes[-1] - vdd) ** 2) / rtt_mc
 
         # DRAM write.
 
@@ -162,32 +184,41 @@ class Termination(object):
         # (V0 - VDD)/2rtt_wr + V0/2rtt_wr + (V0 - VMC)/rs = 0
         coef[0, 0] = 1. / rtt_wr + 1. / rs
         coef[0, rankcnt] = -1. / rs
-        rhs[0] = vdd * 1. / 2 / rtt_wr
+        rhs[0] = vdd_eq / rtt_wr
         # Other rankcnt: rtt_nom, 2x up to VDD and down to GND.
         # (Vi - VDD)/2rtt_nom + Vi/2rtt_nom + (Vi - VMC)/rs = 0
         for idx in range(1, rankcnt):
             coef[idx, idx] = 1. / rtt_nom + 1. / rs
             coef[idx, rankcnt] = -1. / rs
-            rhs[idx] = vdd * 1. / 2 / rtt_nom
+            rhs[idx] = vdd_eq / rtt_nom
         # MC: rz_mc, to GND.
         # VMC/rz_mc + sum (VMC - Vi)/rs = 0
-        for jdx in range(rankcnt):
-            coef[rankcnt, jdx] = -1. / rs
+        coef[rankcnt, 0:rankcnt] = -1. / rs
         coef[rankcnt, rankcnt] = 1. / rz_mc + rankcnt * 1. / rs
         rhs[rankcnt] = 0
 
         wr_vnodes = np.linalg.solve(coef, rhs)
 
         self.wr_power = np.zeros(rankcnt + 1)
-        self.wr_power[0] = \
-                ((wr_vnodes[0] - vdd) ** 2) / 2 / rtt_wr \
-                + (wr_vnodes[0] ** 2) / 2 / rtt_wr \
-                + ((wr_vnodes[0] - wr_vnodes[-1]) ** 2) / rs
+        if level == 'mid':
+            self.wr_power[0] = \
+                    ((wr_vnodes[0] - vdd) ** 2) / 2 / rtt_wr \
+                    + (wr_vnodes[0] ** 2) / 2 / rtt_wr \
+                    + ((wr_vnodes[0] - wr_vnodes[-1]) ** 2) / rs
+        elif level == 'high':
+            self.wr_power[0] = \
+                    ((wr_vnodes[0] - vdd) ** 2) / rtt_wr \
+                    + ((wr_vnodes[0] - wr_vnodes[-1]) ** 2) / rs
         for idx in range(1, rankcnt):
-            self.wr_power[idx] = \
-                    ((wr_vnodes[idx] - vdd) ** 2) / 2 / rtt_nom \
-                    + (wr_vnodes[idx] ** 2) / 2 / rtt_nom \
-                    + ((wr_vnodes[idx] - wr_vnodes[-1]) ** 2) / rs
+            if level == 'mid':
+                self.wr_power[idx] = \
+                        ((wr_vnodes[idx] - vdd) ** 2) / 2 / rtt_nom \
+                        + (wr_vnodes[idx] ** 2) / 2 / rtt_nom \
+                        + ((wr_vnodes[idx] - wr_vnodes[-1]) ** 2) / rs
+            elif level == 'high':
+                self.wr_power[idx] = \
+                        ((wr_vnodes[idx] - vdd) ** 2) / rtt_nom \
+                        + ((wr_vnodes[idx] - wr_vnodes[-1]) ** 2) / rs
         self.wr_power[-1] = (wr_vnodes[-1] ** 2) / rz_mc
 
         # Multiply pin count to be a whole chip.
