@@ -271,6 +271,46 @@ class TestTermination(unittest.TestCase):
                                places=4)
 
 
+class TestTerminationDDR4(unittest.TestCase):
+    '''
+    Termination class unit tests for DDR4.
+
+    Compare with DDR4_Power_Calc.xlsm, default setting but RTTu2 = 40 for write.
+    '''
+
+    vdd = 1.2
+    rankcnt = 2
+    resistance = energydram.TermResistance(rz_dev=34, rz_mc=34, rtt_nom=40,
+                                           rtt_wr=120, rtt_mc=120, rs=10)
+    term = energydram.Termination(vdd, rankcnt, resistance,
+                                  level='high')
+
+    def test_power_memctlr(self):
+        ''' Calculate memory controller power. '''
+        self.assertAlmostEqual(self.term.read_power_memctlr(), 2.4e-3,
+                               places=4)
+        self.assertAlmostEqual(self.term.write_power_memctlr(), 10.0e-3,
+                               places=4)
+
+    def test_power_target_rank(self):
+        ''' Calculate DRAM device power at the target rank. '''
+        self.assertAlmostEqual(self.term.read_power_target_rank(),
+                               7.8e-3 + 2.3e-3,
+                               places=4)
+        self.assertAlmostEqual(self.term.write_power_target_rank(),
+                               2.7e-3 + 0.2e-3,
+                               places=4)
+
+    def test_power_other_ranks(self):
+        ''' Calculate DRAM device power at other ranks. '''
+        self.assertAlmostEqual(self.term.read_power_other_ranks(),
+                               4.6e-3 + 1.1e-3,
+                               places=4)
+        self.assertAlmostEqual(self.term.write_power_other_ranks(),
+                               6.1e-3 + 1.5e-3,
+                               places=4)
+
+
 if __name__ == '__main__':
     unittest.main()
 
