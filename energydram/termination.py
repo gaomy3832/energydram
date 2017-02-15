@@ -97,18 +97,15 @@ class Termination(object):
         self.rankcnt = rankcnt
         self.resistance = resistance
 
-        if width == 4:
-            self.rdpincnt = 6
-            self.wrpincnt = 7
-        elif width == 8:
-            self.rdpincnt = 10
-            self.wrpincnt = 11
-        elif width == 16:
-            self.rdpincnt = 20
-            self.wrpincnt = 22
-        elif width == 0:
+        if width == 0:
             self.rdpincnt = 1
             self.wrpincnt = 1
+        elif width >= 4 and ((width & (width - 1)) == 0):
+            # Power of 2.
+            # Read: DQS, DQS# for each eight-pin group.
+            self.rdpincnt = width + max(1, width / 8) * 2
+            # Write: read plus DM for each eight-pin group.
+            self.wrpincnt = self.rdpincnt + max(1, width / 8)
         else:
             raise ValueError('{}: given width is invalid.'
                              .format(self.__class__.__name__))
