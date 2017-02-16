@@ -59,19 +59,21 @@ class Termination(object):
     Termination scheme for an individual chip.
     '''
 
-    def __init__(self, vdd, rankcnt, resistance, width=0, level='mid'):
+    def __init__(self, vdd, rankcnt, resistance, width=0, level='mid',
+                 with_dqs=True, with_dm=True, with_dbi=False):
         '''
         `width` specifies the chip width and determines the pin count
-        associated to termination. Currently support 0, 4, 8, 16. Valid for
-        DDR2, DDR3, and DDR4.
+        associated to termination. Currently support 0, 4, 8, 16, 32. Valid for
+        DDR2, DDR3, DDR4, LPDDR3, and GDDR5.
 
-        x4 device: for read, 4 DQ and 2 DQS; for write, 1 additional DM.
+        Should be configured with `with_dqs`, `with_dm`, `with_dbi` to specify
+        the presence of DQS, DM, DBI pins.
 
-        x8 device: for read, 8 DQ and 2 DQS; for write, 1 additional DM.
+        DDR2/3/4 and LPDDR3 have DQS and DM but no DBI.
 
-        x16 device: for read, 16 DQ and 4 DQS; for write, 2 additional DM.
+        GDDR5 does not have DQS or DM, but has DBI.
 
-        A special value 0 means to calculate for a single pin.
+        A special value 0 for `width` means to calculate for a single pin.
 
         `level` can be 'high' or 'mid'. DDR2 and DDR3 use mid; DDR4 uses high.
 
@@ -101,11 +103,22 @@ class Termination(object):
             self.rdpincnt = 1
             self.wrpincnt = 1
         elif width >= 4 and ((width & (width - 1)) == 0):
-            # Power of 2.
-            # Read: DQS, DQS# for each eight-pin group.
-            self.rdpincnt = width + max(1, width / 8) * 2
-            # Write: read plus DM for each eight-pin group.
-            self.wrpincnt = self.rdpincnt + max(1, width / 8)
+            # Width must be power of 2.
+
+            self.rdpincnt = 0
+            self.wrpincnt = 0
+            # DQ switch is halved, DBI for each eight-pin group.
+            if with_dbi:
+                self.rdpincnt += width / 2 + max(1, width / 8)
+                self.wrpincnt += width / 2 + max(1, width / 8)
+            else:
+                self.rdpincnt += width
+                self.wrpincnt += width
+            # DQS, DQS# for each eight-pin group.
+            self.rdpincnt += (max(1, width / 8) * 2 if with_dqs else 0)
+            self.wrpincnt += (max(1, width / 8) * 2 if with_dqs else 0)
+            # DM for each eight-pin group.
+            self.wrpincnt += (max(1, width / 8) if with_dm else 0)
         else:
             raise ValueError('{}: given width is invalid.'
                              .format(self.__class__.__name__))
