@@ -311,6 +311,74 @@ class TestTerminationDDR4(unittest.TestCase):
                                places=4)
 
 
+class TestTerminationLPDDR3(unittest.TestCase):
+    '''
+    Termination class unit tests for LPDDR3.
+
+    Compare with Kenta & Makoto Excel sheet.
+    '''
+
+    vdd = 1.2
+    rankcnt = 2
+    # Ignore 5 pF on the P2P wire, but keep the 50 ohm.
+    resistance = energydram.TermResistance(rz_dev=40, rz_mc=40, rtt_nom=60,
+                                           rtt_wr=60, rtt_mc=60, rs=50)
+    term = energydram.Termination(vdd, rankcnt, resistance, width=16,
+                                  level='high')
+
+    def test_power_target_rank(self):
+        ''' Calculate DRAM device power at the target rank. '''
+        self.assertAlmostEqual(self.term.read_power_target_rank(),
+                               156.2e-3,
+                               places=4)
+        self.assertAlmostEqual(self.term.write_power_target_rank(),
+                               96.5e-3,
+                               places=4)
+
+    def test_power_other_ranks(self):
+        ''' Calculate DRAM device power at other ranks. '''
+        self.assertAlmostEqual(self.term.read_power_other_ranks(),
+                               23.8e-3,
+                               places=4)
+        self.assertAlmostEqual(self.term.write_power_other_ranks(),
+                               96.5e-3,
+                               places=4)
+
+
+class TestTerminationGDDR5(unittest.TestCase):
+    '''
+    Termination class unit tests for GDDR5.
+
+    Compare with Kenta & Makoto Excel sheet.
+    '''
+
+    vdd = 1.5
+    rankcnt = 2
+    resistance = energydram.TermResistance(rz_dev=40, rz_mc=40, rtt_nom=60,
+                                           rtt_wr=60, rtt_mc=60, rs=15)
+    term = energydram.Termination(vdd, rankcnt, resistance, width=32,
+                                  with_dqs=False, with_dm=False, with_dbi=True,
+                                  level='high')
+
+    def test_power_target_rank(self):
+        ''' Calculate DRAM device power at the target rank. '''
+        self.assertAlmostEqual(self.term.read_power_target_rank(),
+                               317.2e-3,
+                               places=4)
+        self.assertAlmostEqual(self.term.write_power_target_rank(),
+                               140.5e-3,
+                               places=4)
+
+    def test_power_other_ranks(self):
+        ''' Calculate DRAM device power at other ranks. '''
+        self.assertAlmostEqual(self.term.read_power_other_ranks(),
+                               85.4e-3,
+                               places=4)
+        self.assertAlmostEqual(self.term.write_power_other_ranks(),
+                               140.5e-3,
+                               places=4)
+
+
 if __name__ == '__main__':
     unittest.main()
 
