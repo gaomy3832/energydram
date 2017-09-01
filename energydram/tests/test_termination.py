@@ -25,123 +25,79 @@ class TestTermResistance(unittest.TestCase):
 
     def test_init_zero_rz_dev(self):
         ''' Assert rz_dev != 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'TermResistance: .*rz_dev.*'):
             energydram.TermResistance(rz_dev=0, rz_mc=34, rtt_nom=30,
                                       rtt_wr=120, rtt_mc=75, rs=15)
-        except ValueError as e:
-            self.assertIn('rz_dev', str(e))
-            return
-        self.fail()
 
     def test_init_negative_rz_dev(self):
         ''' Assert rz_dev > 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'TermResistance: .*rz_dev.*'):
             energydram.TermResistance(rz_dev=-10, rz_mc=34, rtt_nom=30,
                                       rtt_wr=120, rtt_mc=75, rs=15)
-        except ValueError as e:
-            self.assertIn('rz_dev', str(e))
-            return
-        self.fail()
 
     def test_init_zero_rz_mc(self):
         ''' Assert rz_mc != 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'TermResistance: .*rz_mc.*'):
             energydram.TermResistance(rz_dev=34, rz_mc=0, rtt_nom=30,
                                       rtt_wr=120, rtt_mc=75, rs=15)
-        except ValueError as e:
-            self.assertIn('rz_mc', str(e))
-            return
-        self.fail()
 
     def test_init_negative_rz_mc(self):
         ''' Assert rz_mc > 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'TermResistance: .*rz_mc.*'):
             energydram.TermResistance(rz_dev=34, rz_mc=-10, rtt_nom=30,
                                       rtt_wr=120, rtt_mc=75, rs=15)
-        except ValueError as e:
-            self.assertIn('rz_mc', str(e))
-            return
-        self.fail()
 
     def test_init_zero_rtt_nom(self):
         ''' Assert rtt_nom != 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError,
+                                     'TermResistance: .*R_TT,nom.*'):
             energydram.TermResistance(rz_dev=34, rz_mc=34, rtt_nom=0,
                                       rtt_wr=120, rtt_mc=75, rs=15)
-        except ValueError as e:
-            self.assertIn('R_TT,nom', str(e))
-            return
-        self.fail()
 
     def test_init_negative_rtt_nom(self):
         ''' Assert rtt_nom > 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError,
+                                     'TermResistance: .*R_TT,nom.*'):
             energydram.TermResistance(rz_dev=34, rz_mc=34, rtt_nom=-10,
                                       rtt_wr=120, rtt_mc=75, rs=15)
-        except ValueError as e:
-            self.assertIn('R_TT,nom', str(e))
-            return
-        self.fail()
 
     def test_init_zero_rtt_wr(self):
         ''' Assert rtt_wr != 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError,
+                                     r'TermResistance: .*R_TT\(WR\).*'):
             energydram.TermResistance(rz_dev=34, rz_mc=34, rtt_nom=30,
                                       rtt_wr=0, rtt_mc=75, rs=15)
-        except ValueError as e:
-            self.assertIn('R_TT(WR)', str(e))
-            return
-        self.fail()
 
     def test_init_negative_rtt_wr(self):
         ''' Assert rtt_wr > 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError,
+                                     r'TermResistance: .*R_TT\(WR\).*'):
             energydram.TermResistance(rz_dev=34, rz_mc=34, rtt_nom=30,
                                       rtt_wr=-10, rtt_mc=75, rs=15)
-        except ValueError as e:
-            self.assertIn('R_TT(WR)', str(e))
-            return
-        self.fail()
 
     def test_init_zero_rtt_mc(self):
         ''' Assert rtt_mc != 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'TermResistance: .*rtt_mc.*'):
             energydram.TermResistance(rz_dev=34, rz_mc=34, rtt_nom=30,
                                       rtt_wr=120, rtt_mc=0, rs=15)
-        except ValueError as e:
-            self.assertIn('rtt_mc', str(e))
-            return
-        self.fail()
 
     def test_init_negative_rtt_mc(self):
         ''' Assert rtt_mc > 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'TermResistance: .*rtt_mc.*'):
             energydram.TermResistance(rz_dev=34, rz_mc=34, rtt_nom=30,
                                       rtt_wr=120, rtt_mc=-10, rs=15)
-        except ValueError as e:
-            self.assertIn('rtt_mc', str(e))
-            return
-        self.fail()
 
     def test_init_zero_rs(self):
         ''' Assert rs != 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'TermResistance: .*rs.*'):
             energydram.TermResistance(rz_dev=34, rz_mc=34, rtt_nom=30,
                                       rtt_wr=120, rtt_mc=75, rs=0)
-        except ValueError as e:
-            self.assertIn('rs', str(e))
-            return
-        self.fail()
 
     def test_init_negative_rs(self):
         ''' Assert rs > 0. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'TermResistance: .*rs.*'):
             energydram.TermResistance(rz_dev=34, rz_mc=34, rtt_nom=30,
                                       rtt_wr=120, rtt_mc=75, rs=-10)
-        except ValueError as e:
-            self.assertIn('rs', str(e))
-            return
-        self.fail()
 
 
 class TestTermination(unittest.TestCase):
@@ -182,45 +138,27 @@ class TestTermination(unittest.TestCase):
 
     def test_init_invalid_vdd(self):
         ''' Initialize with invalid vdd. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'Termination: .*vdd.*'):
             energydram.Termination(-1.2, self.rankcnt, self.resistance)
-        except ValueError as e:
-            self.assertIn('vdd', str(e))
-            return
-        self.fail()
 
     def test_init_invalid_rankcnt(self):
         ''' Initialize with invalid rankcnt. '''
-        try:
+        with self.assertRaisesRegexp(TypeError, 'Termination: .*rankcnt.*'):
             energydram.Termination(self.vdd, 1.2, self.resistance)
-        except TypeError as e:
-            self.assertIn('rankcnt', str(e))
-            try:
-                energydram.Termination(self.vdd, 0, self.resistance)
-            except ValueError as e:
-                self.assertIn('rankcnt', str(e))
-                return
-            self.fail()
-        self.fail()
+
+        with self.assertRaisesRegexp(ValueError, 'Termination: .*rankcnt.*'):
+            energydram.Termination(self.vdd, 0, self.resistance)
 
     def test_init_invalid_width(self):
         ''' Initialize with invalid width. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'Termination: .*width.*'):
             energydram.Termination(self.vdd, self.rankcnt, self.resistance,
                                    width=1)
-        except ValueError as e:
-            self.assertIn('width', str(e))
-            return
-        self.fail()
 
     def test_init_invalid_resistance(self):
         ''' Initialize with invalid resistance. '''
-        try:
+        with self.assertRaisesRegexp(TypeError, 'Termination: .*resistance.*'):
             energydram.Termination(self.vdd, self.rankcnt, None)
-        except TypeError as e:
-            self.assertIn('resistance', str(e))
-            return
-        self.fail()
 
     def test_power_total(self):
         ''' Assert total power is the sum of mem controller and devices. '''
@@ -377,8 +315,4 @@ class TestTerminationGDDR5(unittest.TestCase):
         self.assertAlmostEqual(self.term.write_power_other_ranks(),
                                140.5e-3,
                                places=4)
-
-
-if __name__ == '__main__':
-    unittest.main()
 

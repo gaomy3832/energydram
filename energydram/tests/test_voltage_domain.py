@@ -26,80 +26,45 @@ class TestIDDs(unittest.TestCase):
 
     def test_init_2n_vs_2p(self):
         ''' Assert IDD2N >= IDD2P. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'IDDs: .*2N.*2P.*'):
             energydram.IDDs(idd0=115, idd2p=25, idd2n=15, idd3p=45,
                             idd3n=75, idd4r=220, idd4w=240, idd5=255)
-        except ValueError as e:
-            self.assertIn('2N', str(e))
-            self.assertIn('2P', str(e))
-            return
-        self.fail()
 
     def test_init_3n_vs_3p(self):
         ''' Assert IDD3N >= IDD3P. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'IDDs: .*3N.*3P.*'):
             energydram.IDDs(idd0=115, idd2p=25, idd2n=65, idd3p=95,
                             idd3n=75, idd4r=220, idd4w=240, idd5=255)
-        except ValueError as e:
-            self.assertIn('3N', str(e))
-            self.assertIn('3P', str(e))
-            return
-        self.fail()
 
     def test_init_3n_vs_2n(self):
         ''' Assert IDD3N >= IDD2N. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'IDDs: .*3N.*2N.*'):
             energydram.IDDs(idd0=115, idd2p=25, idd2n=65, idd3p=45,
                             idd3n=55, idd4r=220, idd4w=240, idd5=255)
-        except ValueError as e:
-            self.assertIn('3N', str(e))
-            self.assertIn('2N', str(e))
-            return
-        self.fail()
 
     def test_init_3p_vs_2p(self):
         ''' Assert IDD3P >= IDD2P. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'IDDs: .*3P.*2P.*'):
             energydram.IDDs(idd0=115, idd2p=25, idd2n=65, idd3p=15,
                             idd3n=75, idd4r=220, idd4w=240, idd5=255)
-        except ValueError as e:
-            self.assertIn('3P', str(e))
-            self.assertIn('2P', str(e))
-            return
-        self.fail()
 
     def test_init_4r_vs_3n(self):
         ''' Assert IDD4R >= IDD3N. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'IDDs: .*4R.*3N.*'):
             energydram.IDDs(idd0=115, idd2p=25, idd2n=65, idd3p=45,
                             idd3n=75, idd4r=70, idd4w=240, idd5=255)
-        except ValueError as e:
-            self.assertIn('4R', str(e))
-            self.assertIn('3N', str(e))
-            return
-        self.fail()
 
     def test_init_4w_vs_3n(self):
         ''' Assert IDD4W >= IDD3N. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'IDDs: .*4W.*3N.*'):
             energydram.IDDs(idd0=115, idd2p=25, idd2n=65, idd3p=45,
                             idd3n=75, idd4r=220, idd4w=70, idd5=255)
-        except ValueError as e:
-            self.assertIn('4W', str(e))
-            self.assertIn('3N', str(e))
-            return
-        self.fail()
 
     def test_init_5_vs_3n(self):
         ''' Assert IDD5 >= IDD3N. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'IDDs: .*5.*3N.*'):
             energydram.IDDs(idd0=115, idd2p=25, idd2n=65, idd3p=45,
                             idd3n=75, idd4r=220, idd4w=240, idd5=70)
-        except ValueError as e:
-            self.assertIn('5', str(e))
-            self.assertIn('3N', str(e))
-            return
-        self.fail()
 
 
 class TestVoltageDomain(unittest.TestCase):
@@ -130,60 +95,36 @@ class TestVoltageDomain(unittest.TestCase):
 
     def test_init_invalid_tck(self):
         ''' Initialize with invalid tck. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'VoltageDomain: .*tck.*'):
             energydram.VoltageDomain(-1, self.vdd, self.idds, self.chipcnt)
-        except ValueError as e:
-            self.assertIn('tck', str(e))
-            return
-        self.fail()
 
     def test_init_invalid_vdd(self):
         ''' Initialize with invalid vdd. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'VoltageDomain: .*vdd.*'):
             energydram.VoltageDomain(self.tck, -1.2, self.idds, self.chipcnt)
-        except ValueError as e:
-            self.assertIn('vdd', str(e))
-            return
-        self.fail()
 
     def test_init_invalid_idds(self):
         ''' Initialize with invalid idds. '''
-        try:
+        with self.assertRaisesRegexp(TypeError, 'VoltageDomain: .*idds.*'):
             energydram.VoltageDomain(self.tck, self.vdd, None, self.chipcnt)
-        except TypeError as e:
-            self.assertIn('idds', str(e))
-            return
-        self.fail()
 
     def test_init_invalid_chipcnt(self):
         ''' Initialize with invalid chipcnt. '''
-        try:
+        with self.assertRaisesRegexp(TypeError, 'VoltageDomain: .*chipcnt.*'):
             energydram.VoltageDomain(self.tck, self.vdd, self.idds, None)
-        except TypeError as e:
-            self.assertIn('chipcnt', str(e))
-            try:
-                energydram.VoltageDomain(self.tck, self.vdd, self.idds, 0)
-            except ValueError as e:
-                self.assertIn('chipcnt', str(e))
-                return
-            self.fail()
-        self.fail()
+
+        with self.assertRaisesRegexp(ValueError, 'VoltageDomain: .*chipcnt.*'):
+            energydram.VoltageDomain(self.tck, self.vdd, self.idds, 0)
 
     def test_init_invalid_ddr(self):
         ''' Initialize with invalid ddr. '''
-        try:
+        with self.assertRaisesRegexp(TypeError, 'VoltageDomain: .*ddr.*'):
             energydram.VoltageDomain(self.tck, self.vdd, self.idds,
                                      self.chipcnt, 0.5)
-        except TypeError as e:
-            self.assertIn('ddr', str(e))
-            try:
-                energydram.VoltageDomain(self.tck, self.vdd, self.idds,
-                                         self.chipcnt, -1)
-            except ValueError as e:
-                self.assertIn('ddr', str(e))
-                return
-            self.fail()
-        self.fail()
+
+        with self.assertRaisesRegexp(ValueError, 'VoltageDomain: .*ddr.*'):
+            energydram.VoltageDomain(self.tck, self.vdd, self.idds,
+                                     self.chipcnt, -1)
 
     def test_background_energy(self):
         ''' Calculate background energy. '''
@@ -232,8 +173,4 @@ class TestVoltageDomain(unittest.TestCase):
         eref = vdom.refresh_energy(self.timing, 1)
         pds_ref = eref / self.timing.REFI / vdom.tck
         self.assertAlmostEqual(pds_ref, 5.5, delta=0.1)
-
-
-if __name__ == '__main__':
-    unittest.main()
 

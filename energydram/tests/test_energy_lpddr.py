@@ -26,7 +26,7 @@ class TestEnergyDDR(unittest.TestCase):
     idds2 = energydram.IDDs(idd0=60, idd2p=1.8, idd2n=26, idd3p=11,
                             idd3n=34, idd4r=230, idd4w=240, idd5=150)
     vddcaq = 1.2
-    # FIXME: idd0, idd4r, idd4w, idd5 were 3.
+    # NOTE: idd0, idd4r, idd4w, idd5 were 3.
     iddsin = energydram.IDDs(idd0=6, idd2p=0.2, idd2n=6, idd3p=0.2,
                              idd3n=6, idd4r=6, idd4w=6, idd5=6)
     chipcnt = 1
@@ -65,60 +65,40 @@ class TestEnergyDDR(unittest.TestCase):
 
     def test_init_lpddr(self):
         ''' Initialize with for LPDDR. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'EnergyLPDDR: .*ddr.*'):
             energydram.EnergyLPDDR(self.tck, self.timing, self.vdd1,
                                    self.idds1, self.vdd2, self.idds2,
                                    self.vddcaq, self.iddsin, self.chipcnt,
                                    ddr=1)
-        except ValueError as e:
-            self.assertIn('ddr', str(e))
-            return
-        self.fail()
 
     def test_init_lpddr4(self):
         ''' Initialize with for LPDDR4. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'EnergyLPDDR: .*ddr.*'):
             energydram.EnergyLPDDR(self.tck, self.timing, self.vdd1,
                                    self.idds1, self.vdd2, self.idds2,
                                    self.vddcaq, self.iddsin, self.chipcnt,
                                    ddr=4)
-        except ValueError as e:
-            self.assertIn('ddr', str(e))
-            return
-        self.fail()
 
     def test_init_lpddr23_invalid_vdd1(self):
         ''' Initialize with invalid vdd1 for LPDDR2/3. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'EnergyLPDDR: .*vdd1.*'):
             energydram.EnergyLPDDR(self.tck, self.timing, 1.2,
                                    self.idds1, self.vdd2, self.idds2,
                                    self.vddcaq, self.iddsin, self.chipcnt)
-        except ValueError as e:
-            self.assertIn('vdd1', str(e))
-            return
-        self.fail()
 
     def test_init_lpddr23_invalid_vdd2(self):
         ''' Initialize with invalid vdd2 for LPDDR2/3. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'EnergyLPDDR: .*vdd2.*'):
             energydram.EnergyLPDDR(self.tck, self.timing, self.vdd1,
                                    self.idds1, 1.8, self.idds2,
                                    self.vddcaq, self.iddsin, self.chipcnt)
-        except ValueError as e:
-            self.assertIn('vdd2', str(e))
-            return
-        self.fail()
 
     def test_init_lpddr23_invalid_vddcaq(self):  # pylint: disable=invalid-name
         ''' Initialize with invalid vddcaq for LPDDR2/3. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'EnergyLPDDR: .*vddcaq.*'):
             energydram.EnergyLPDDR(self.tck, self.timing, self.vdd1,
                                    self.idds1, self.vdd2, self.idds2,
                                    1.8, self.iddsin, self.chipcnt)
-        except ValueError as e:
-            self.assertIn('vddcaq', str(e))
-            return
-        self.fail()
 
     def test_background_energy(self):
         ''' Calculate background energy. '''
@@ -175,8 +155,4 @@ class TestEnergyDDR(unittest.TestCase):
         eref = elpddr3.refresh_energy(1)
         pds_ref = eref / self.timing.REFI / self.tck
         self.assertIsInstance(pds_ref, float)
-
-
-if __name__ == '__main__':
-    unittest.main()
 

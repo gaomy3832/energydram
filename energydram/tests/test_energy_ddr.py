@@ -51,53 +51,33 @@ class TestEnergyDDR(unittest.TestCase):
 
     def test_init_ddr(self):
         ''' Initialize with for DDR. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'EnergyDDR: .*ddr.*'):
             energydram.EnergyDDR(self.tck, self.timing, 1.2, self.idds,
                                  self.chipcnt, ddr=1)
-        except ValueError as e:
-            self.assertIn('ddr', str(e))
-            return
-        self.fail()
 
     def test_init_ddr4(self):
         ''' Initialize with for DDR4. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'EnergyDDR: .*ddr.*'):
             energydram.EnergyDDR(self.tck, self.timing, 1.2, self.idds,
                                  self.chipcnt, ddr=4)
-        except ValueError as e:
-            self.assertIn('ddr', str(e))
-            return
-        self.fail()
 
     def test_init_ddr2_invalid_vdd(self):
         ''' Initialize with invalid vdd for DDR2. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'EnergyDDR: .*vdd.*'):
             energydram.EnergyDDR(self.tck, self.timing, 1.2, self.idds,
                                  self.chipcnt, ddr=2)
-        except ValueError as e:
-            self.assertIn('vdd', str(e))
-            return
-        self.fail()
 
     def test_init_ddr3_invalid_vdd(self):
         ''' Initialize with invalid vdd for DDR3. '''
-        try:
+        with self.assertRaisesRegexp(ValueError, 'EnergyDDR: .*vdd.*'):
             energydram.EnergyDDR(self.tck, self.timing, 1.2, self.idds,
                                  self.chipcnt)
-        except ValueError as e:
-            self.assertIn('vdd', str(e))
-            return
-        self.fail()
 
     def test_init_invalid_timing(self):
         ''' Initialize with invalid idds. '''
-        try:
+        with self.assertRaisesRegexp(TypeError, 'EnergyDDR: .*timing.*'):
             energydram.EnergyDDR(self.tck, (1, 2), self.vdd, self.idds,
                                  self.chipcnt)
-        except TypeError as e:
-            self.assertIn('timing', str(e))
-            return
-        self.fail()
 
     def test_background_energy(self):
         ''' Calculate background energy. '''
@@ -146,8 +126,4 @@ class TestEnergyDDR(unittest.TestCase):
         eref = eddr3.refresh_energy(1)
         pds_ref = eref / self.timing.REFI / self.tck
         self.assertAlmostEqual(pds_ref, 5.2, delta=0.1)
-
-
-if __name__ == '__main__':
-    unittest.main()
 
