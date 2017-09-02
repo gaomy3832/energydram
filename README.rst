@@ -1,3 +1,9 @@
+.. image:: https://travis-ci.org/gaomy3832/energydram.svg?branch=master
+    :target: https://travis-ci.org/gaomy3832/energydram
+.. image:: https://coveralls.io/repos/github/gaomy3832/energydram/badge.svg?branch=master
+    :target: https://coveralls.io/github/gaomy3832/energydram?branch=master
+
+
 DRAM Energy
 ===========
 
