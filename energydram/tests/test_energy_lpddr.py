@@ -100,6 +100,13 @@ class TestEnergyDDR(unittest.TestCase):
                                    self.idds1, self.vdd2, self.idds2,
                                    1.8, self.iddsin, self.chipcnt)
 
+    def test_init_lpddr23_invalid_timing(self):  # pylint: disable=invalid-name
+        ''' Initialize with invalid timing for LPDDR2/3. '''
+        with self.assertRaisesRegexp(TypeError, 'EnergyLPDDR: .*timing.*'):
+            energydram.EnergyLPDDR(self.tck, None, self.vdd1,
+                                   self.idds1, self.vdd2, self.idds2,
+                                   self.vddcaq, self.iddsin, self.chipcnt)
+
     def test_background_energy(self):
         ''' Calculate background energy. '''
         elpddr3 = energydram.EnergyLPDDR(self.tck, self.timing, self.vdd1,

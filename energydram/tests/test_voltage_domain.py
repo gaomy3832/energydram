@@ -48,6 +48,12 @@ class TestIDDs(unittest.TestCase):
             energydram.IDDs(idd0=115, idd2p=25, idd2n=65, idd3p=15,
                             idd3n=75, idd4r=220, idd4w=240, idd5=255)
 
+    def test_init_0_vs_3n(self):
+        ''' Assert IDD0 >= IDD3N. '''
+        with self.assertRaisesRegexp(ValueError, 'IDDs: .*0.*3N.*'):
+            energydram.IDDs(idd0=15, idd2p=25, idd2n=65, idd3p=45,
+                            idd3n=75, idd4r=220, idd4w=240, idd5=255)
+
     def test_init_4r_vs_3n(self):
         ''' Assert IDD4R >= IDD3N. '''
         with self.assertRaisesRegexp(ValueError, 'IDDs: .*4R.*3N.*'):

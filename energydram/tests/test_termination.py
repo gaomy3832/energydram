@@ -160,6 +160,12 @@ class TestTermination(unittest.TestCase):
         with self.assertRaisesRegexp(TypeError, 'Termination: .*resistance.*'):
             energydram.Termination(self.vdd, self.rankcnt, None)
 
+    def test_init_invalid_level(self):
+        ''' Initialize with invalid level. '''
+        with self.assertRaisesRegexp(ValueError, 'Termination: .*level.*'):
+            energydram.Termination(self.vdd, self.rankcnt, self.resistance,
+                                   level='inv')
+
     def test_power_total(self):
         ''' Assert total power is the sum of mem controller and devices. '''
         term = energydram.Termination(self.vdd, self.rankcnt, self.resistance)
