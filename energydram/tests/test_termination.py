@@ -332,3 +332,21 @@ class TestTerminationGDDR5(unittest.TestCase):
                                140.5e-3,
                                places=4)
 
+
+class TestTerminationLPDDR4(unittest.TestCase):
+    '''
+    Termination class unit tests for LPDDR4.
+    '''
+
+    vdd = 1.1
+    rankcnt = 2
+    resistance = energydram.TermResistance(rz_dev=40, rz_mc=40, rtt_nom=60,
+                                           rtt_wr=60, rtt_mc=60, rs=15)
+    term = energydram.Termination(vdd, rankcnt, resistance, width=32,
+                                  level='low')
+
+    def test_power_dummy(self):
+        ''' A dummy power test. '''
+        self.assertGreater(self.term.read_power_total(), 0)
+        self.assertGreater(self.term.write_power_total(), 0)
+

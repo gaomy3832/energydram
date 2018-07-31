@@ -30,12 +30,15 @@ class TestEnergyDDR(unittest.TestCase):
     tck = 1000./800
     timing = energydram.Timing(RRD=10, RAS=42, RP=18, RFC=210, REFI=3900)
     vdd1 = 1.8
+    vdd1_lp4 = 1.8
     idds1 = energydram.IDDs(idd0=8, idd2p=0.8, idd2n=0.8, idd3p=1.4,
                             idd3n=2.0, idd4r=2, idd4w=2, idd5=28)
     vdd2 = 1.2
+    vdd2_lp4 = 1.1
     idds2 = energydram.IDDs(idd0=60, idd2p=1.8, idd2n=26, idd3p=11,
                             idd3n=34, idd4r=230, idd4w=240, idd5=150)
     vddcaq = 1.2
+    vddcaq_lp4 = 1.1
     # NOTE: idd0, idd4r, idd4w, idd5 were 3.
     iddsin = energydram.IDDs(idd0=6, idd2p=0.2, idd2n=6, idd3p=0.2,
                              idd3n=6, idd4r=6, idd4w=6, idd5=6)
@@ -83,11 +86,20 @@ class TestEnergyDDR(unittest.TestCase):
 
     def test_init_lpddr4(self):
         ''' Initialize with for LPDDR4. '''
+        elpddr4 = energydram.EnergyLPDDR(self.tck, self.timing, self.vdd1_lp4,
+                                         self.idds1, self.vdd2_lp4, self.idds2,
+                                         self.vddcaq_lp4, self.iddsin,
+                                         self.chipcnt,
+                                         ddr=4)
+        self.assertIn('LPDDR4', elpddr4.type, 'type')
+
+    def test_init_lpddr5(self):
+        ''' Initialize with for LPDDR5. '''
         with self.assertRaisesRegexp(ValueError, 'EnergyLPDDR: .*ddr.*'):
             energydram.EnergyLPDDR(self.tck, self.timing, self.vdd1,
                                    self.idds1, self.vdd2, self.idds2,
                                    self.vddcaq, self.iddsin, self.chipcnt,
-                                   ddr=4)
+                                   ddr=5)
 
     def test_init_lpddr23_invalid_vdd1(self):
         ''' Initialize with invalid vdd1 for LPDDR2/3. '''
@@ -116,6 +128,30 @@ class TestEnergyDDR(unittest.TestCase):
             energydram.EnergyLPDDR(self.tck, None, self.vdd1,
                                    self.idds1, self.vdd2, self.idds2,
                                    self.vddcaq, self.iddsin, self.chipcnt)
+
+    def test_init_lpddr4_invalid_vdd1(self):
+        ''' Initialize with invalid vdd1 for LPDDR4. '''
+        with self.assertRaisesRegexp(ValueError, 'EnergyLPDDR: .*vdd1.*'):
+            energydram.EnergyLPDDR(self.tck, self.timing, 1.2,
+                                   self.idds1, self.vdd2_lp4, self.idds2,
+                                   self.vddcaq_lp4, self.iddsin, self.chipcnt,
+                                   ddr=4)
+
+    def test_init_lpddr4_invalid_vdd2(self):
+        ''' Initialize with invalid vdd2 for LPDDR4. '''
+        with self.assertRaisesRegexp(ValueError, 'EnergyLPDDR: .*vdd2.*'):
+            energydram.EnergyLPDDR(self.tck, self.timing, self.vdd1_lp4,
+                                   self.idds1, 1.8, self.idds2,
+                                   self.vddcaq_lp4, self.iddsin, self.chipcnt,
+                                   ddr=4)
+
+    def test_init_lpddr4_invalid_vddcaq(self):  # pylint: disable=invalid-name
+        ''' Initialize with invalid vddcaq for LPDDR4. '''
+        with self.assertRaisesRegexp(ValueError, 'EnergyLPDDR: .*vddcaq.*'):
+            energydram.EnergyLPDDR(self.tck, self.timing, self.vdd1_lp4,
+                                   self.idds1, self.vdd2_lp4, self.idds2,
+                                   1.8, self.iddsin, self.chipcnt,
+                                   ddr=4)
 
     def test_background_energy(self):
         ''' Calculate background energy. '''

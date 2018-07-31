@@ -39,10 +39,24 @@ class EnergyLPDDR(object):
                                  .format(self.__class__.__name__)
                                  + ' should be 1.2 V for LPDDR2/3.')
             self.type = 'LPDDR{}'.format(ddr)
-        elif ddr >= 4:
+        elif ddr == 4:
+            if round(vdd1, 5) != round(1.8, 5):
+                raise ValueError('{}: given vdd1 is invalid.'
+                                 .format(self.__class__.__name__)
+                                 + ' should be 1.8 V for LPDDR4.')
+            if round(vdd2, 5) != round(1.1, 5):
+                raise ValueError('{}: given vdd2 is invalid.'
+                                 .format(self.__class__.__name__)
+                                 + ' should be 1.1 V for LPDDR4.')
+            if round(vddcaq, 5) != round(1.1, 5):
+                raise ValueError('{}: given vddcaq is invalid.'
+                                 .format(self.__class__.__name__)
+                                 + ' should be 1.1 V for LPDDR4.')
+            self.type = 'LPDDR{}'.format(ddr)
+        elif ddr >= 5:
             raise ValueError('{}: given ddr is invalid.'
                              .format(self.__class__.__name__)
-                             + ' LPDDR4 and above are not supported currently.')
+                             + ' LPDDR5 and above are not supported currently.')
         else:
             raise ValueError('{}: given ddr is invalid.'
                              .format(self.__class__.__name__))
