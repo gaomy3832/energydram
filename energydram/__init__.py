@@ -20,5 +20,5 @@ from .termination import TermResistance, Termination
 from .timing import Timing
 from .voltage_domain import IDDs, VoltageDomain
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
