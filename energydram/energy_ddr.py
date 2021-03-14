@@ -23,7 +23,8 @@ class EnergyDDR(object):
     Calculate energy for DDR2, DDR3(L).
     '''
 
-    def __init__(self, tck, timing, vdd, idds, chipcnt, ddr=3):
+    def __init__(self, tck, timing, vdd, idds, chipcnt, ddr=3,
+                 vpp=None, ipps=None):
         if ddr == 2:
             if round(vdd, 5) != round(1.8, 5):
                 raise ValueError('{}: given vdd is invalid.'
@@ -43,10 +44,20 @@ class EnergyDDR(object):
                                  .format(self.__class__.__name__)
                                  + ' should be 1.5 V for DDR3, '
                                  'or 1.35 V for DDR3L.')
-        elif ddr >= 4:
+        elif ddr == 4:
+            if not (vpp is None and ipps is None) and \
+                    round(vdd, 5) == round(1.2, 5) and \
+                    round(vpp, 5) == round(2.5, 5):
+                self.type = 'DDR4'
+                burstcycles = 4
+            else:
+                raise ValueError('{}: given vdd or vpp is invalid.'
+                                 .format(self.__class__.__name__)
+                                 + ' should be 1.2 V and 2.5 V for DDR4.')
+        elif ddr >= 5:
             raise ValueError('{}: given ddr is invalid.'
                              .format(self.__class__.__name__)
-                             + ' DDR4 and above are not supported currently.')
+                             + ' DDR5 and above are not supported currently.')
         else:
             raise ValueError('{}: given ddr is invalid.'
                              .format(self.__class__.__name__))
@@ -57,6 +68,8 @@ class EnergyDDR(object):
         self.timing = timing
         self.vdoms = []
         self.vdoms.append(VoltageDomain(tck, vdd, idds, chipcnt, burstcycles))
+        if ddr >= 4:
+            self.vdoms.append(VoltageDomain(tck, vpp, ipps, chipcnt, burstcycles))
 
     def background_energy(self, cycles_bankpre_ckelo=0, cycles_bankpre_ckehi=0,
                           cycles_bankact_ckelo=0, cycles_bankact_ckehi=0):
@@ -87,4 +100,9 @@ class EnergyDDR(object):
     def vdd_domain(self):
         ''' VDD voltage domain. '''
         return self.vdoms[0]
+
+    @property
+    def vpp_domain(self):
+        ''' VPP voltage domain. '''
+        return self.vdoms[1]
 

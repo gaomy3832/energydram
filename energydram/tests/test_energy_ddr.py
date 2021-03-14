@@ -33,6 +33,8 @@ class TestEnergyDDR(unittest.TestCase):
     vdd = 1.5
     idds = energydram.IDDs(idd0=95, idd2p=35, idd2n=42, idd3p=40,
                            idd3n=45, idd4r=180, idd4w=185, idd5=215)
+    ipps = energydram.IDDs(idd0=3, idd2p=3, idd2n=3, idd3p=3,
+                           idd3n=3, idd4r=3, idd4w=3, idd5=3)
     chipcnt = 1
 
     def test_init(self):
@@ -62,17 +64,29 @@ class TestEnergyDDR(unittest.TestCase):
         self.assertIn('DDR3L', eddr3.type, 'type')
         self.assertEqual(eddr3.vdd_domain.burstcycles, 4, 'burstcycles')
 
+    def test_init_ddr4(self):
+        ''' Initialize with for DDR4. '''
+        eddr4 = energydram.EnergyDDR(self.tck, self.timing, 1.2,
+                                     self.idds, self.chipcnt, ddr=4,
+                                     vpp=2.5, ipps=self.ipps)
+        self.assertIn('DDR4', eddr4.type, 'type')
+        self.assertEqual(eddr4.vpp_domain.tck, self.tck, 'tck')
+        self.assertEqual(eddr4.vpp_domain.vdd, 2.5, 'vpp')
+        self.assertEqual(eddr4.vpp_domain.idds, self.ipps, 'ipps')
+        self.assertEqual(eddr4.vpp_domain.chipcnt, self.chipcnt, 'chipcnt')
+        self.assertEqual(eddr4.vpp_domain.burstcycles, 4, 'burstcycles')
+
     def test_init_ddr(self):
         ''' Initialize with for DDR. '''
         with self.assertRaisesRegexp(ValueError, 'EnergyDDR: .*ddr.*'):
             energydram.EnergyDDR(self.tck, self.timing, 1.2, self.idds,
                                  self.chipcnt, ddr=1)
 
-    def test_init_ddr4(self):
-        ''' Initialize with for DDR4. '''
+    def test_init_ddr5(self):
+        ''' Initialize with for DDR5. '''
         with self.assertRaisesRegexp(ValueError, 'EnergyDDR: .*ddr.*'):
             energydram.EnergyDDR(self.tck, self.timing, 1.2, self.idds,
-                                 self.chipcnt, ddr=4)
+                                 self.chipcnt, ddr=5)
 
     def test_init_ddr2_invalid_vdd(self):
         ''' Initialize with invalid vdd for DDR2. '''
@@ -85,6 +99,17 @@ class TestEnergyDDR(unittest.TestCase):
         with self.assertRaisesRegexp(ValueError, 'EnergyDDR: .*vdd.*'):
             energydram.EnergyDDR(self.tck, self.timing, 1.2, self.idds,
                                  self.chipcnt)
+
+    def test_init_ddr4_invalid_vpp(self):
+        ''' Initialize with for DDR4. '''
+        with self.assertRaisesRegexp(ValueError, 'EnergyDDR: .*vdd.*'):
+            energydram.EnergyDDR(self.tck, self.timing, 1.5,
+                                 self.idds, self.chipcnt, ddr=4,
+                                 vpp=2.5, ipps=self.ipps)
+
+        with self.assertRaisesRegexp(ValueError, 'EnergyDDR: .*vdd.*'):
+            energydram.EnergyDDR(self.tck, self.timing, 1.2,
+                                 self.idds, self.chipcnt, ddr=4)
 
     def test_init_invalid_timing(self):
         ''' Initialize with invalid idds. '''
