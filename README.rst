@@ -1,13 +1,30 @@
-.. image:: https://travis-ci.org/gaomy3832/energydram.svg?branch=master
-    :target: https://travis-ci.org/gaomy3832/energydram
-.. image:: https://coveralls.io/repos/github/gaomy3832/energydram/badge.svg?branch=master
-    :target: https://coveralls.io/github/gaomy3832/energydram?branch=master
-
-
 DRAM Energy
 ===========
 
+:Version info:
+    .. image:: https://img.shields.io/pypi/v/energydram
+        :target: https://pypi.org/project/energydram/
+
+:Compatibility:
+    .. image:: https://img.shields.io/pypi/pyversions/energydram
+        :target: https://pypi.org/project/energydram/
+
+:Test status:
+    .. image:: https://github.com/gaomy3832/energydram/actions/workflows/test.yml/badge.svg?branch=master
+        :target: https://github.com/gaomy3832/energydram/actions/workflows/test.yml
+
+    .. image:: https://codecov.io/gh/gaomy3832/energydram/branch/master/graph/badge.svg?token=V3L3RF3VND
+        :target: https://codecov.io/gh/gaomy3832/energydram
+
 DRAM energy calculation.
+
+Current supported standards:
+
+- DDR2/3/4
+- LPDDR2/3/4
+- GDDR5 (only for termination)
+
+by *Mingyu Gao*
 
 
 References
