@@ -1,0 +1,47 @@
+name: test
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+    - 'README*'
+    - 'LICENSE'
+  pull_request:
+    branches: [ master ]
+    paths-ignore:
+    - 'README*'
+    - 'LICENSE'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy
+        pip install coverage pytest pytest-cov
+    - name: Test
+      run: |
+        pytest --cov=energydram
+    - name: Upload coverage data
+      uses: codecov/codecov-action@v1
+      with:
+        fail_ci_if_error: true
+
