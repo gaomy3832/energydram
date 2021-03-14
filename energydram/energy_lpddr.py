@@ -39,6 +39,7 @@ class EnergyLPDDR(object):
                                  .format(self.__class__.__name__)
                                  + ' should be 1.2 V for LPDDR2/3.')
             self.type = 'LPDDR{}'.format(ddr)
+            burstcycles = (1 << ddr) // 2
         elif ddr == 4:
             if round(vdd1, 5) != round(1.8, 5):
                 raise ValueError('{}: given vdd1 is invalid.'
@@ -53,6 +54,7 @@ class EnergyLPDDR(object):
                                  .format(self.__class__.__name__)
                                  + ' should be 1.1 V for LPDDR4.')
             self.type = 'LPDDR{}'.format(ddr)
+            burstcycles = 4
         elif ddr >= 5:
             raise ValueError('{}: given ddr is invalid.'
                              .format(self.__class__.__name__)
@@ -65,9 +67,9 @@ class EnergyLPDDR(object):
             raise TypeError('{}: given timing has invalid type.'
                             .format(self.__class__.__name__))
         self.timing = timing
-        self.vdom1 = VoltageDomain(tck, vdd1, idds1, chipcnt, ddr=ddr)
-        self.vdom2 = VoltageDomain(tck, vdd2, idds2, chipcnt, ddr=ddr)
-        self.vdomcaq = VoltageDomain(tck, vddcaq, iddsin, chipcnt, ddr=ddr)
+        self.vdom1 = VoltageDomain(tck, vdd1, idds1, chipcnt, burstcycles)
+        self.vdom2 = VoltageDomain(tck, vdd2, idds2, chipcnt, burstcycles)
+        self.vdomcaq = VoltageDomain(tck, vddcaq, iddsin, chipcnt, burstcycles)
 
     def background_energy(self, cycles_bankpre_ckelo=0, cycles_bankpre_ckehi=0,
                           cycles_bankact_ckelo=0, cycles_bankact_ckehi=0):

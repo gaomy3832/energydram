@@ -63,7 +63,7 @@ class VoltageDomain(object):
     Define a voltage domain including VDD and IDD values.
     '''
 
-    def __init__(self, tck, vdd, idds, chipcnt, ddr=3):
+    def __init__(self, tck, vdd, idds, chipcnt, burstcycles):
         if tck < 0:
             raise ValueError('{}: given tck is invalid.'
                              .format(self.__class__.__name__))
@@ -79,17 +79,17 @@ class VoltageDomain(object):
         if chipcnt <= 0:
             raise ValueError('{}: given chipcnt is invalid.'
                              .format(self.__class__.__name__))
-        if not isinstance(ddr, int):
-            raise TypeError('{}: given ddr has invalid type.'
+        if not isinstance(burstcycles, int):
+            raise TypeError('{}: given burstcycles has invalid type.'
                             .format(self.__class__.__name__))
-        if ddr < 0:
-            raise ValueError('{}: given ddr is invalid.'
+        if burstcycles <= 0:
+            raise ValueError('{}: given burstcycles is invalid.'
                              .format(self.__class__.__name__))
         self.tck = tck
         self.vdd = vdd
         self.idds = idds
         self.chipcnt = chipcnt
-        self.ddr = ddr
+        self.burstcycles = burstcycles
 
     def background_energy(self, cycles_bankpre_ckelo=0, cycles_bankpre_ckehi=0,
                           cycles_bankact_ckelo=0, cycles_bankact_ckehi=0):
@@ -110,9 +110,9 @@ class VoltageDomain(object):
 
     def readwrite_energy(self, num_rd=1, num_wr=0):
         ''' Read write energy. '''
-        cyc_burst = (1 << self.ddr) / 2 if self.ddr >= 1 else 1
-        chipicyc = cyc_burst * ((self.idds.idd4r - self.idds.idd3n) * num_rd
-                                + (self.idds.idd4w - self.idds.idd3n) * num_wr)
+        chipicyc = self.burstcycles * (
+            (self.idds.idd4r - self.idds.idd3n) * num_rd
+            + (self.idds.idd4w - self.idds.idd3n) * num_wr)
         return chipicyc * self.vdd * self.tck * self.chipcnt
 
     def refresh_energy(self, timing, num_ref=1):

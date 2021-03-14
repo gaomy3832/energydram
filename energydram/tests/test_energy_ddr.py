@@ -44,7 +44,7 @@ class TestEnergyDDR(unittest.TestCase):
         self.assertEqual(eddr3.vdom.vdd, self.vdd, 'vdd')
         self.assertEqual(eddr3.vdom.idds, self.idds, 'idds')
         self.assertEqual(eddr3.vdom.chipcnt, self.chipcnt, 'chipcnt')
-        self.assertEqual(eddr3.vdom.ddr, 3, 'ddr')
+        self.assertEqual(eddr3.vdom.burstcycles, 4, 'burstcycles')
         self.assertIn('DDR3', eddr3.type, 'type')
 
     def test_init_ddr2(self):

@@ -102,50 +102,50 @@ class TestVoltageDomain(unittest.TestCase):
     def test_init(self):
         ''' Initialization. '''
         vdom = energydram.VoltageDomain(self.tck, self.vdd, self.idds,
-                                        self.chipcnt)
+                                        self.chipcnt, 4)
         self.assertEqual(vdom.tck, self.tck, 'tck')
         self.assertEqual(vdom.vdd, self.vdd, 'vdd')
         self.assertEqual(vdom.idds, self.idds, 'idds')
         self.assertEqual(vdom.chipcnt, self.chipcnt, 'chipcnt')
-        self.assertEqual(vdom.ddr, 3, 'ddr')
+        self.assertEqual(vdom.burstcycles, 4, 'burstcycles')
 
     def test_init_invalid_tck(self):
         ''' Initialize with invalid tck. '''
         with self.assertRaisesRegexp(ValueError, 'VoltageDomain: .*tck.*'):
-            energydram.VoltageDomain(-1, self.vdd, self.idds, self.chipcnt)
+            energydram.VoltageDomain(-1, self.vdd, self.idds, self.chipcnt, 4)
 
     def test_init_invalid_vdd(self):
         ''' Initialize with invalid vdd. '''
         with self.assertRaisesRegexp(ValueError, 'VoltageDomain: .*vdd.*'):
-            energydram.VoltageDomain(self.tck, -1.2, self.idds, self.chipcnt)
+            energydram.VoltageDomain(self.tck, -1.2, self.idds, self.chipcnt, 4)
 
     def test_init_invalid_idds(self):
         ''' Initialize with invalid idds. '''
         with self.assertRaisesRegexp(TypeError, 'VoltageDomain: .*idds.*'):
-            energydram.VoltageDomain(self.tck, self.vdd, None, self.chipcnt)
+            energydram.VoltageDomain(self.tck, self.vdd, None, self.chipcnt, 4)
 
     def test_init_invalid_chipcnt(self):
         ''' Initialize with invalid chipcnt. '''
         with self.assertRaisesRegexp(TypeError, 'VoltageDomain: .*chipcnt.*'):
-            energydram.VoltageDomain(self.tck, self.vdd, self.idds, None)
+            energydram.VoltageDomain(self.tck, self.vdd, self.idds, None, 4)
 
         with self.assertRaisesRegexp(ValueError, 'VoltageDomain: .*chipcnt.*'):
-            energydram.VoltageDomain(self.tck, self.vdd, self.idds, 0)
+            energydram.VoltageDomain(self.tck, self.vdd, self.idds, 0, 4)
 
-    def test_init_invalid_ddr(self):
-        ''' Initialize with invalid ddr. '''
-        with self.assertRaisesRegexp(TypeError, 'VoltageDomain: .*ddr.*'):
+    def test_init_invalid_burstcycles(self):
+        ''' Initialize with invalid burstcycles. '''
+        with self.assertRaisesRegexp(TypeError, 'VoltageDomain: .*burstcycles.*'):
             energydram.VoltageDomain(self.tck, self.vdd, self.idds,
                                      self.chipcnt, 0.5)
 
-        with self.assertRaisesRegexp(ValueError, 'VoltageDomain: .*ddr.*'):
+        with self.assertRaisesRegexp(ValueError, 'VoltageDomain: .*burstcycles.*'):
             energydram.VoltageDomain(self.tck, self.vdd, self.idds,
                                      self.chipcnt, -1)
 
     def test_background_energy(self):
         ''' Calculate background energy. '''
         vdom = energydram.VoltageDomain(self.tck, self.vdd, self.idds,
-                                        self.chipcnt, ddr=3)
+                                        self.chipcnt, 4)
 
         pds_pre_lo = vdom.background_energy(1, 0, 0, 0) / vdom.tck
         self.assertAlmostEqual(pds_pre_lo, 55.1, delta=0.1)
@@ -162,7 +162,7 @@ class TestVoltageDomain(unittest.TestCase):
     def test_activate_energy(self):
         ''' Calculate activate energy. '''
         vdom = energydram.VoltageDomain(self.tck, self.vdd, self.idds,
-                                        self.chipcnt, ddr=3)
+                                        self.chipcnt, 4)
 
         eact = vdom.activate_energy(self.timing, 1)
         pds_act = eact / (self.timing.RAS + self.timing.RP) / vdom.tck
@@ -171,7 +171,7 @@ class TestVoltageDomain(unittest.TestCase):
     def test_readwrite_energy(self):
         ''' Calculate read/write energy. '''
         vdom = energydram.VoltageDomain(self.tck, self.vdd, self.idds,
-                                        self.chipcnt, ddr=3)
+                                        self.chipcnt, 4)
 
         erd = vdom.readwrite_energy(num_rd=1, num_wr=0)
         pds_rd = erd / 4 / vdom.tck
@@ -184,7 +184,7 @@ class TestVoltageDomain(unittest.TestCase):
     def test_refresh_energy(self):
         ''' Calculate activate energy. '''
         vdom = energydram.VoltageDomain(self.tck, self.vdd, self.idds,
-                                        self.chipcnt, ddr=3)
+                                        self.chipcnt, 4)
 
         eref = vdom.refresh_energy(self.timing, 1)
         pds_ref = eref / self.timing.REFI / vdom.tck

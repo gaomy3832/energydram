@@ -30,11 +30,14 @@ class EnergyDDR(object):
                                  .format(self.__class__.__name__)
                                  + ' should be 1.8 V for DDR2.')
             self.type = 'DDR2'
+            burstcycles = 2
         elif ddr == 3:
             if round(vdd, 5) == round(1.5, 5):
                 self.type = 'DDR3'
+                burstcycles = 4
             elif round(vdd, 5) == round(1.35, 5):
                 self.type = 'DDR3L'
+                burstcycles = 4
             else:
                 raise ValueError('{}: given vdd is invalid.'
                                  .format(self.__class__.__name__)
@@ -52,7 +55,7 @@ class EnergyDDR(object):
             raise TypeError('{}: given timing has invalid type.'
                             .format(self.__class__.__name__))
         self.timing = timing
-        self.vdom = VoltageDomain(tck, vdd, idds, chipcnt, ddr=ddr)
+        self.vdom = VoltageDomain(tck, vdd, idds, chipcnt, burstcycles)
 
     def background_energy(self, cycles_bankpre_ckelo=0, cycles_bankpre_ckehi=0,
                           cycles_bankact_ckelo=0, cycles_bankact_ckehi=0):

@@ -63,9 +63,9 @@ class TestEnergyDDR(unittest.TestCase):
         self.assertEqual(elpddr3.vdom1.chipcnt, self.chipcnt, 'chipcnt1')
         self.assertEqual(elpddr3.vdom2.chipcnt, self.chipcnt, 'chipcnt2')
         self.assertEqual(elpddr3.vdomcaq.chipcnt, self.chipcnt, 'chipcntcaq')
-        self.assertEqual(elpddr3.vdom1.ddr, 3, 'ddr1')
-        self.assertEqual(elpddr3.vdom2.ddr, 3, 'ddr2')
-        self.assertEqual(elpddr3.vdomcaq.ddr, 3, 'ddrcaq')
+        self.assertEqual(elpddr3.vdom1.burstcycles, 4, 'burstcycles1')
+        self.assertEqual(elpddr3.vdom2.burstcycles, 4, 'burstcycles2')
+        self.assertEqual(elpddr3.vdomcaq.burstcycles, 4, 'burstcyclescaq')
         self.assertIn('LPDDR3', elpddr3.type, 'type')
 
     def test_init_lpddr2(self):
