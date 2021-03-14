@@ -50,22 +50,17 @@ class TestEnergyDDR(unittest.TestCase):
                                          self.idds1, self.vdd2, self.idds2,
                                          self.vddcaq, self.iddsin, self.chipcnt,
                                          ddr=3)
-        self.assertEqual(elpddr3.vdom1.tck, self.tck, 'tck1')
-        self.assertEqual(elpddr3.vdom2.tck, self.tck, 'tck2')
-        self.assertEqual(elpddr3.vdomcaq.tck, self.tck, 'tckcaq')
         self.assertEqual(elpddr3.timing, self.timing, 'timing')
-        self.assertEqual(elpddr3.vdom1.vdd, self.vdd1, 'vdd1')
-        self.assertEqual(elpddr3.vdom2.vdd, self.vdd2, 'vdd2')
-        self.assertEqual(elpddr3.vdomcaq.vdd, self.vddcaq, 'vddcaq')
-        self.assertEqual(elpddr3.vdom1.idds, self.idds1, 'idds1')
-        self.assertEqual(elpddr3.vdom2.idds, self.idds2, 'idds2')
-        self.assertEqual(elpddr3.vdomcaq.idds, self.iddsin, 'iddsin')
-        self.assertEqual(elpddr3.vdom1.chipcnt, self.chipcnt, 'chipcnt1')
-        self.assertEqual(elpddr3.vdom2.chipcnt, self.chipcnt, 'chipcnt2')
-        self.assertEqual(elpddr3.vdomcaq.chipcnt, self.chipcnt, 'chipcntcaq')
-        self.assertEqual(elpddr3.vdom1.burstcycles, 4, 'burstcycles1')
-        self.assertEqual(elpddr3.vdom2.burstcycles, 4, 'burstcycles2')
-        self.assertEqual(elpddr3.vdomcaq.burstcycles, 4, 'burstcyclescaq')
+        self.assertEqual(elpddr3.vdd1_domain.vdd, self.vdd1, 'vdd1')
+        self.assertEqual(elpddr3.vdd2_domain.vdd, self.vdd2, 'vdd2')
+        self.assertEqual(elpddr3.vddq_domain.vdd, self.vddcaq, 'vddcaq')
+        self.assertEqual(elpddr3.vdd1_domain.idds, self.idds1, 'idds1')
+        self.assertEqual(elpddr3.vdd2_domain.idds, self.idds2, 'idds2')
+        self.assertEqual(elpddr3.vddq_domain.idds, self.iddsin, 'iddsin')
+        for vdom in elpddr3.vdoms:
+            self.assertEqual(vdom.tck, self.tck, 'tck')
+            self.assertEqual(vdom.chipcnt, self.chipcnt, 'chipcnt')
+            self.assertEqual(vdom.burstcycles, 4, 'burstcycles')
         self.assertIn('LPDDR3', elpddr3.type, 'type')
 
     def test_init_lpddr2(self):

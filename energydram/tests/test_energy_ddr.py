@@ -39,12 +39,13 @@ class TestEnergyDDR(unittest.TestCase):
         ''' Initialization. '''
         eddr3 = energydram.EnergyDDR(self.tck, self.timing, self.vdd,
                                      self.idds, self.chipcnt)
-        self.assertEqual(eddr3.vdom.tck, self.tck, 'tck')
         self.assertEqual(eddr3.timing, self.timing, 'timing')
-        self.assertEqual(eddr3.vdom.vdd, self.vdd, 'vdd')
-        self.assertEqual(eddr3.vdom.idds, self.idds, 'idds')
-        self.assertEqual(eddr3.vdom.chipcnt, self.chipcnt, 'chipcnt')
-        self.assertEqual(eddr3.vdom.burstcycles, 4, 'burstcycles')
+        self.assertEqual(eddr3.vdd_domain.vdd, self.vdd, 'vdd')
+        self.assertEqual(eddr3.vdd_domain.idds, self.idds, 'idds')
+        for vdom in eddr3.vdoms:
+            self.assertEqual(vdom.tck, self.tck, 'tck')
+            self.assertEqual(vdom.chipcnt, self.chipcnt, 'chipcnt')
+            self.assertEqual(vdom.burstcycles, 4, 'burstcycles')
         self.assertIn('DDR3', eddr3.type, 'type')
 
     def test_init_ddr2(self):
@@ -52,12 +53,14 @@ class TestEnergyDDR(unittest.TestCase):
         eddr2 = energydram.EnergyDDR(self.tck, self.timing, 1.8,
                                      self.idds, self.chipcnt, ddr=2)
         self.assertIn('DDR2', eddr2.type, 'type')
+        self.assertEqual(eddr2.vdd_domain.burstcycles, 2, 'burstcycles')
 
     def test_init_ddr3l(self):
         ''' Initialization for DDR3L. '''
         eddr3 = energydram.EnergyDDR(self.tck, self.timing, 1.35,
                                      self.idds, self.chipcnt)
         self.assertIn('DDR3L', eddr3.type, 'type')
+        self.assertEqual(eddr3.vdd_domain.burstcycles, 4, 'burstcycles')
 
     def test_init_ddr(self):
         ''' Initialize with for DDR. '''

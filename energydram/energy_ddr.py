@@ -55,26 +55,36 @@ class EnergyDDR(object):
             raise TypeError('{}: given timing has invalid type.'
                             .format(self.__class__.__name__))
         self.timing = timing
-        self.vdom = VoltageDomain(tck, vdd, idds, chipcnt, burstcycles)
+        self.vdoms = []
+        self.vdoms.append(VoltageDomain(tck, vdd, idds, chipcnt, burstcycles))
 
     def background_energy(self, cycles_bankpre_ckelo=0, cycles_bankpre_ckehi=0,
                           cycles_bankact_ckelo=0, cycles_bankact_ckehi=0):
         ''' Background energy. '''
-        return self.vdom.background_energy(
+        return sum(vdom.background_energy(
             cycles_bankpre_ckelo=cycles_bankpre_ckelo,
             cycles_bankpre_ckehi=cycles_bankpre_ckehi,
             cycles_bankact_ckelo=cycles_bankact_ckelo,
             cycles_bankact_ckehi=cycles_bankact_ckehi)
+                   for vdom in self.vdoms)
 
     def activate_energy(self, num_act=1):
         ''' Activate energy. '''
-        return self.vdom.activate_energy(self.timing, num_act=num_act)
+        return sum(vdom.activate_energy(self.timing, num_act=num_act)
+                   for vdom in self.vdoms)
 
     def readwrite_energy(self, num_rd=1, num_wr=0):
         ''' Read write energy. '''
-        return self.vdom.readwrite_energy(num_rd=num_rd, num_wr=num_wr)
+        return sum(vdom.readwrite_energy(num_rd=num_rd, num_wr=num_wr)
+                   for vdom in self.vdoms)
 
     def refresh_energy(self, num_ref=1):
         ''' Refresh energy. '''
-        return self.vdom.refresh_energy(self.timing, num_ref=num_ref)
+        return sum(vdom.refresh_energy(self.timing, num_ref=num_ref)
+                   for vdom in self.vdoms)
+
+    @property
+    def vdd_domain(self):
+        ''' VDD voltage domain. '''
+        return self.vdoms[0]
 
